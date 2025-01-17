@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaVolumeUp } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 
 function App() {
   const [wordArray, setWordArray] = useState([]);
@@ -9,6 +10,11 @@ function App() {
   const handleInput = (e) => setInput(e.target.value);
 
   const getData = async () => {
+    if (!input.trim()) {
+      setError("Please enter a word.");
+      return;
+    }
+
     const URL = `https://api.dictionaryapi.dev/api/v2/entries/en/${input}`;
     try {
       const response = await fetch(URL);
@@ -28,6 +34,8 @@ function App() {
     if (wordArray.length > 0 && wordArray[0].phonetics[0]?.audio) {
       const audio = new Audio(wordArray[0].phonetics[0].audio);
       audio.play();
+    } else {
+      alert("No audio available for this word.");
     }
   };
 
@@ -52,7 +60,7 @@ function App() {
             className="border-2 border-gray-300 rounded-md p-2 hover:text-blue-500"
             onClick={getData}
           >
-            Search
+            <FaSearch className="text-2xl" />
           </button>
         </div>
         {error && <p className="text-red-500 text-center">{error}</p>}
@@ -68,15 +76,36 @@ function App() {
               </span>
             </div>
             <div className="text-gray-500 italic mb-3">
-              {wordArray[0].phonetic}
+              {wordArray[0].phonetic || "No phonetic available"}
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                Definition:
-              </h2>
-              <p className="text-gray-700">
-                {wordArray[0].meanings[0].definitions[0].definition}
+              <h2 className="text-lg font-bold text-gray-800 mb-1">Definition:</h2>
+              <p className="text-blue-700">
+                {wordArray[0].meanings[0]?.definitions[0]?.definition || "No definition available"}
               </p>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-800 mb-1">Example:</h2>
+              <p className="text-blue-700">
+                {wordArray[0].meanings[1]?.definitions[2]?.example || "No example available"}
+              </p>
+            </div>
+            <div>
+              <h2 className="text-lg text-gray-800 font-bold">Synonyms:</h2>
+              <p className="text-blue-700">
+                {wordArray[0].meanings[1]?.synonyms?.[3] || "No synonyms available"}
+              </p>
+            </div>
+            <div>
+              <h2 className="text-lg text-gray-800 font-bold">Learn More:</h2>
+              <a
+                href={wordArray[0].sourceUrls?.[0] || "#"}
+                className="text-blue-700 underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Link Here
+              </a>
             </div>
           </div>
         )}
